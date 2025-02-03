@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to ทิ้ง</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+
+        .header {
+            background-color: #e9f5f4;
+            padding: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+            /* Add fixed dimensions */
+            width: 280px;
+            height: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 2fr);
+            gap: 20px;
+            justify-items: center;
+        }
+
+        .grid .card img {
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px;
+            border-radius: 8px;
+        }
+
+        .home-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #4CAF50;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .home-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            background-color: #45a049;
+        }
+
+        .home-button svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-align: left;
+            max-width: 500px;
+            width: 90%;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .popup.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .popup img {
+            width: auto;
+            max-width: 100%;
+            max-height: 250px;
+            display: block;
+            margin: 0 auto 20px;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .popup-overlay.active {
+            opacity: 1;
+        }
+
+        .close-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-icon:hover {
+            background: #e0e0e0;
+            transform: rotate(90deg);
+        }
+
+        .close-icon::before,
+        .close-icon::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 2px;
+            background: #333;
+        }
+
+        .close-icon::before {
+            transform: rotate(45deg);
+        }
+
+        .close-icon::after {
+            transform: rotate(-45deg);
+        }
+
+        .popup h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .popup p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+@media (max-width: 1300px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .card {
+        width: 100%; /* Make cards fill their grid cell */
+        max-width: 280px; /* Maintain maximum width */
+        height: auto; /* Allow height to adjust based on content */
+        max-height: 320px;
+        min-height: 120px; /* Maintain minimum height */
+        margin: 0 auto; /* Center cards in their cells */
+    }
+    
+
+    .container {
+        
+        margin: 10px;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    h3 {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+}
+
+/* Add additional breakpoint for very small screens */
+@media (max-width: 480px) {
+    .grid {
+        gap: 10px;
+    }
+
+    .card {
+        padding: 0px;
+    }
+
+    .container {
+        
+        margin: 5px;
+    }
+
+    .popup {
+        width: 80%;
+        
+    }
+}
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>How to ทิ้ง</h1>
+        <h3>เป็นแนวคิดที่ช่วยให้เราทิ้งขยะอย่างถูกต้องและเป็นมิตรต่อสิ่งแวดล้อม โดยเฉพาะขยะอิเล็กทรอนิกส์ (E-Waste)
+            ซึ่งมีสารอันตรายและสามารถนำไปรีไซเคิลได้</h3>
+        <div class="grid">
+            <div class="card" onclick="openPopup('img/battery.jpg', 'วิธีการทิ้ง', 'เก็บรวบรวมถ่านไฟฉายใช้แล้วไว้ในถุงพลาสติก หรือถุงดำและนำไปที่จุดรับทิ้งแบตเตอรี่หรือถังขยะสีแดง')">
+                <img src="img/battery.jpg" alt="ถ่าน">
+                <p>ถ่าน</p>
+            </div>
+            <div class="card" onclick="openPopup('img/lamp.jpg', 'วิธีการทิ้ง', 'นำหลอดไฟที่จะทิ้งแล้วใส่ปลอกกระดาษที่เคยใส่มาตอนซื้อ หรือห่อด้วยกระดาษหนังสือพิมพ์หลายๆ ชั้น เพื่อป้องกันหลอดแตกหักเสียหายและนำไปที่จุดรับทิ้งแบตเตอรี่หรือถังขยะสีแดง')">
+                <img src="img/lamp.jpg" alt="หลอดไฟ">
+                <p>หลอดไฟ</p>
+            </div>
+            <div class="card" onclick="openPopup('img/headphone.jpg', 'วิธีการทิ้ง', 'ควรทิ้ง หูฟัง ลงใน ถังขยะสีแดง (ขยะอันตราย) เหตุผลที่ต้องทิ้งถังขยะสีแดงเป็นขยะอิเล็กทรอนิกส์ (E-waste)หูฟังมีส่วนประกอบของ โลหะ พลาสติก สายไฟ และชิ้นส่วนอิเล็กทรอนิกส์ ซึ่งอาจก่อให้เกิดมลพิษหากถูกทิ้งผิดที่มีสารอันตรายที่ปนเปื้อนสิ่งแวดล้อมได้หูฟังอาจมี โลหะหนัก เช่น ตะกั่ว แคดเมียม และปรอท ซึ่งถ้าถูกเผาหรือฝังกลบผิดวิธี อาจก่อให้เกิดสารพิษในดินและน้ำ')">
+                <img src="img/headphone.jpg" alt="หูฟัง">
+                <p>หูฟัง</p>
+            </div>
+            <div class="card" onclick="openPopup('img/mouse.jpg', 'วิธีการทิ้ง', 'หากเป็นเมาส์ไร้สาย ควรถอดแบตเตอรี่ออกก่อน ใช้ถุงพลาสติกหรือกระดาษห่อเมาส์ก่อนทิ้ง เพื่อลดความเสียหายหรืออันตรายจากเศษอิเล็กทรอนิกส์ควรทิ้งถังขยะสีแดงแต่ควรห่อแยกและติดป้ายว่าเป็นขยะอิเล็กทรอนิกส์เพื่อให้เจ้าหน้าที่คัดแยกได้ง่ายขึ้น')">
+                <img src="img/mouse.jpg" alt="เมาส์">
+                <p>เมาส์</p>
+            </div>
+            <div class="card" onclick="openPopup('img/cardboard.jpg', 'วิธีการทิ้ง', 'กระดาษลังเป็น ขยะรีไซเคิล สามารถนำกลับมาใช้ใหม่ได้ถ้าเป็นลังที่ยังแข็งแรง สามารถนำมาใช้ซ้ำ เช่น เก็บของ หรือทำ DIY ถ้าจำเป็นต้องทิ้งให้ทิ้งใน ถังสีเหลือง ซึ่งใช้สำหรับขยะรีไซเคิล ')">
+                <img src="img/cardboard.jpg" alt="กระดาษลัง">
+                <p>กระดาษลัง</p>
+            </div>
+            <div class="card" onclick="openPopup('img/plastic.jpg', 'วิธีการทิ้ง', 'แก้วน้ำพลาสติกสามารถ รีไซเคิลได้ ทิ้งถังขยะสีเหลือง ถ้าสะอาด แต่ถ้ามีคราบอาหารหรือมันเยิ้ม อาจต้องทิ้งเป็นขยะทั่วไป')">
+                <img src="img/plastic.png" alt="แก้วน้ำพลาสติก">
+                <p>แก้วน้ำพลาสติก</p>
+            </div>
+            <div class="card" onclick="openPopup('img/food.jpg', 'วิธีการทิ้ง', 'ผักและผลไม้เป็น ขยะอินทรีย์ (ขยะเปียก) ซึ่งสามารถย่อยสลายได้ตามธรรมชาติทิ้งในถังขยะสีเขียว')">
+                <img src="img/food1.jpg" alt="ผักและผลไม้">
+                <p>ผักและผลไม้</p>
+            </div>
+            <div class="card" onclick="openPopup('img/stick.jpg', 'วิธีการทิ้ง', 'ใบไม้และกิ่งไม้เป็น ขยะอินทรีย์ (ขยะเปียก) ที่สามารถย่อยสลายได้ตามธรรมชาติและใช้ทำปุ๋ยได้ถ้าทิ้ง ทิ้งในถังขยะสีเขียว (ขยะอินทรีย์ / ขยะเปียก)')">
+                <img src="img/stick.png" alt="ใบไม้และกิ่งไม้">
+                <p>ใบไม้และกิ่งไม้</p>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" class="home-button" onclick="homePage(); return false;">
+        <svg viewBox="0 0 24 24">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+    </a>
+
+    <div class="popup-overlay" id="popupOverlay"></div>
+    <div class="popup" id="popup">
+        <div class="close-icon" onclick="closePopup()"></div>
+        <img id="popupImage" src="" alt="">
+        <h2 id="popupTitle"></h2>
+        <p id="popupText"></p>
+    </div>
+
+    <script>
+        function openPopup(imageSrc, title, text) {
+            document.getElementById('popupImage').src = imageSrc;
+            document.getElementById('popupTitle').innerText = title;
+            document.getElementById('popupText').innerText = text;
+            document.getElementById('popupOverlay').style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('popupOverlay').classList.add('active');
+                document.getElementById('popup').classList.add('active');
+            }, 10);
+        }
+
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('active');
+            document.getElementById('popup').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('popupOverlay').style.display = 'none';
+                document.getElementById('popup').style.display = 'none';
+            }, 300);
+        }
+
+        function homePage() {
+            document.location.href = './index.html';
+        }
+
+        document.getElementById('popupOverlay').addEventListener('click', closePopup);
+    </script>
+</body>
+
+</html>

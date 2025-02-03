@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dragndrop game!</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #eee;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .timer-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #eee;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .timer {
+            width: 100%;
+            height: 100%;
+            background-color: #ff6b6b;
+            border-radius: 10px;
+            transition: width 0.1s linear;
+        }
+
+        .timer-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+            line-height: 20px;
+            z-index: 1;
+        }
+
+        .waste-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+            padding: 0 10px;
+        }
+
+        .waste-item {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .waste-item img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+        }
+
+        .waste-item.active {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .waste-item.solved {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .waste-item.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            background-color: #ddd;
+        }
+
+        .bins {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .bin {
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            min-height: 180px;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bin img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+        }
+
+        .bin.highlight {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .score {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        .moving-item {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translate(-50%, -50%);
+        }
+
+        .start-button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .start-button:hover {
+            background-color: #45a049;
+        }
+
+        .start-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            transform: scale(0.7);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .modal-body {
+            padding: 20px 0;
+        }
+
+        .score-display {
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .total-score {
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        .restart-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .restart-button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .restart-button:active {
+            transform: translateY(0);
+        }
+
+        .home-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #4CAF50;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .home-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            background-color: #45a049;
+        }
+
+        .home-button svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px 5px;
+            }
+
+            .bins {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                padding: 5px;
+            }
+
+            .bin {
+                padding: 10px;
+                min-height: 120px;
+            }
+
+            .bin img {
+                width: 80px;
+                height: 80px;
+            }
+
+            .waste-items {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 0 5px;
+            }
+
+            .waste-item {
+                padding: 15px;
+            }
+
+            .waste-item img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .home-button {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .home-button svg {
+                width: 25px;
+                height: 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .score-circle {
+                width: 100px;
+                height: 100px;
+                font-size: 32px;
+            }
+
+            .total-score {
+                font-size: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 20px;
+            }
+
+            .restart-button {
+                padding: 10px 25px;
+                font-size: 14px;
+            }
+        }
+
+        /* Media query สำหรับหน้าจอขนาดเล็กมาก */
+        @media (max-width: 360px) {
+            .bins {
+                gap: 5px;
+            }
+
+            .bin {
+                padding: 8px;
+                min-height: 100px;
+            }
+
+            .bin img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .waste-item {
+                padding: 10px;
+            }
+
+            .waste-item img {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>เกมแยกขยะ</h1>
+
+        <div class="timer-bar">
+            <div class="timer-text">เวลา: <span id="timeLeft">20</span> วินาที</div>
+            <div class="timer" id="timerBar"></div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="score">คะแนน: <span id="score">0</span>/8</div>
+
+        <button class="start-button" id="startButton">เริ่มเกม</button>
+
+        <div class="waste-items" id="wasteItems">
+            <div class="waste-item disabled" data-type="hazard">
+                <img src="./img/battery-removebg-preview.png" alt="ถ่าน">
+            </div>
+            <div class="waste-item disabled" data-type="hazard">
+                <img src="./img/lamp-removebg-preview.png" alt="">
+            </div>
+            <div class="waste-item disabled" data-type="hazard">
+                <img src="./img/headphone-removebg-preview.png" alt="">
+            </div>
+            <div class="waste-item disabled" data-type="hazard">
+                <img src="./img/mouse-removebg-preview.png" alt="">
+            </div>
+            <div class="waste-item disabled" data-type="recycle">
+                <img src="./img/cardboard-removebg-preview.png" alt="ถ่าน">
+            </div>
+            <div class="waste-item disabled" data-type="recycle">
+                <img src="./img/plastic-removebg-preview.png" alt="">
+            </div>
+            <div class="waste-item disabled" data-type="general">
+                <img src="./img/food1-removebg-preview.png" alt="">
+            </div>
+            <div class="waste-item disabled" data-type="general">
+                <img src="./img/stick.png" alt="">
+            </div>
+        </div>
+
+        <div class="bins">
+            <div class="bin blue-bin" data-type="general">
+                <img src="./img/blue-removebg-preview.png" alt="ถังขยะทั่วไป">
+                <!-- <div>ขยะทั่วไป</div> -->
+            </div>
+            <div class="bin yellow-bin" data-type="recycle">
+                <img src="./img/yellow-removebg-preview.png" alt="ถังขยะรีไซเคิล">
+                <!-- <div>ขยะรีไซเคิล</div> -->
+            </div>
+            <div class="bin red-bin" data-type="hazard">
+                <img src="./img/red-removebg-preview.png" alt="ถังขยะอันตราย">
+                <!-- <div>ขยะอันตราย</div> -->
+            </div>
+        </div>
+    </div>
+
+    <div id="gameEndModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>เกมจบแล้ว!</h2>
+            </div>
+            <div class="modal-body">
+                <div class="score-display">
+                    <div class="score-circle">
+                        <span id="modalScore">0</span>
+                        <span class="total-score">/8</span>
+                    </div> 
+                    <!-- fdaledasDASL;DASLDSA;L -->
+                    <p>คะแนนของคุณ</p>
+                </div>
+                <button id="restartButton" class="restart-button">เล่นอีกครั้ง</button>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" class="home-button" onclick="homePage(); return false;">
+        <svg viewBox="0 0 24 24">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+        </svg>
+    </a>
+
+    <script>
+        let score = 0;
+        let activeItem = null;
+        let movingItem = null;
+        let initialX, initialY;
+        let answeredItems = new Set();
+        let gameTimer = null;
+        let timeLeft = 10;
+        let isGameActive = false;
+
+        const scoreElement = document.getElementById('score');
+        const progressElement = document.getElementById('progress');
+        const timeLeftElement = document.getElementById('timeLeft');
+        const timerBarElement = document.getElementById('timerBar');
+        const startButton = document.getElementById('startButton');
+        const wasteItems = document.querySelectorAll('.waste-item');
+        const bins = document.querySelectorAll('.bin');
+
+        startButton.addEventListener('click', startGame);
+
+        function startGame() {
+            // Reset game state
+            score = 0;
+            scoreElement.textContent = '0';
+            answeredItems.clear();
+            timeLeft = 20;
+            isGameActive = true;
+
+            // Enable items
+            wasteItems.forEach(item => {
+                item.classList.remove('disabled', 'solved');
+            });
+
+            // Reset progress
+            progressElement.style.width = '0%';
+
+            // Start timer
+            startButton.disabled = true;
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = 20;
+            updateTimerDisplay();
+
+            gameTimer = setInterval(() => {
+                timeLeft -= 0.1;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 100);
+        }
+
+        function updateTimerDisplay() {
+            const percentage = (timeLeft / 20) * 100;
+            timerBarElement.style.width = `${percentage}%`;
+            timeLeftElement.textContent = Math.max(0, Math.ceil(timeLeft));
+        }
+
+        function endGame() {
+            clearInterval(gameTimer);
+            isGameActive = false;
+
+            wasteItems.forEach(item => {
+                if (!item.classList.contains('solved')) {
+                    item.classList.add('disabled');
+                }
+            });
+
+            startButton.disabled = false;
+            showModal(score);
+        }
+
+        function createMovingElement(element, x, y) {
+            const moving = document.createElement('div');
+            moving.className = 'moving-item';
+
+            // Clone the image from the original item
+            const img = element.querySelector('img');
+            if (img) {
+                const clonedImg = img.cloneNode(true);
+                clonedImg.style.width = '50px';
+                clonedImg.style.height = '50px';
+                moving.appendChild(clonedImg);
+            }
+
+            moving.style.left = x + 'px';
+            moving.style.top = y + 'px';
+            document.body.appendChild(moving);
+            return moving;
+        }
+
+        wasteItems.forEach(item => {
+            item.addEventListener('touchstart', handleStart, { passive: false });
+            item.addEventListener('mousedown', handleStart);
+        });
+
+        document.addEventListener('touchmove', handleMove, { passive: false });
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('touchend', handleEnd);
+        document.addEventListener('mouseup', handleEnd);
+
+        function handleStart(e) {
+            if (!isGameActive) return;
+
+            e.preventDefault();
+            const item = e.target.closest('.waste-item');
+            if (!item || item.classList.contains('solved') || item.classList.contains('disabled')) return;
+
+            activeItem = item;
+            activeItem.classList.add('active');
+
+            const point = e.touches ? e.touches[0] : e;
+            initialX = point.clientX;
+            initialY = point.clientY;
+
+            movingItem = createMovingElement(activeItem, initialX, initialY);
+        }
+
+        function handleMove(e) {
+            if (!activeItem || !movingItem || !isGameActive) return;
+            e.preventDefault();
+
+            const point = e.touches ? e.touches[0] : e;
+            movingItem.style.left = point.clientX + 'px';
+            movingItem.style.top = point.clientY + 'px';
+
+            const bin = findClosestBin(point.clientX, point.clientY);
+            clearBinHighlights();
+            if (bin) {
+                bin.classList.add('highlight');
+            }
+        }
+
+        function handleEnd(e) {
+            if (!activeItem || !movingItem || !isGameActive) return;
+
+            const point = e.changedTouches ? e.changedTouches[0] : e;
+            const bin = findClosestBin(point.clientX, point.clientY);
+
+            if (bin) {
+                const itemType = activeItem.dataset.type;
+                const binType = bin.dataset.type;
+
+                if (itemType === binType && !answeredItems.has(activeItem)) {
+                    score++;
+                    activeItem.classList.add('solved');
+                    answeredItems.add(activeItem);
+                } else if (!answeredItems.has(activeItem)) {
+                    activeItem.classList.add('solved');
+                    answeredItems.add(activeItem);
+                }
+
+                scoreElement.textContent = score;
+                updateProgress();
+
+                if (answeredItems.size === 8) {
+                    endGame();
+                }
+            }
+
+            clearBinHighlights();
+            if (movingItem) {
+                movingItem.remove();
+                movingItem = null;
+            }
+            if (activeItem) {
+                activeItem.classList.remove('active');
+                activeItem = null;
+            }
+        }
+
+        function findClosestBin(x, y) {
+            let closestBin = null;
+            let closestDistance = Infinity;
+
+            bins.forEach(bin => {
+                const rect = bin.getBoundingClientRect();
+                const binX = rect.left + rect.width / 2;
+                const binY = rect.top + rect.height / 2;
+
+                const distance = Math.hypot(x - binX, y - binY);
+
+                if (distance < closestDistance && distance < 150) {
+                    closestDistance = distance;
+                    closestBin = bin;
+                }
+            });
+
+            return closestBin;
+        }
+
+        function clearBinHighlights() {
+            bins.forEach(bin => bin.classList.remove('highlight'));
+        }
+
+        function updateProgress() {
+            const totalAnswered = answeredItems.size;
+            const maxItems = 8;
+            const progress = (totalAnswered / maxItems) * 100;
+            progressElement.style.width = `${progress}%`;
+        }
+
+        function showModal(score) {
+            const modal = document.getElementById('gameEndModal');
+            const modalScore = document.getElementById('modalScore');
+            modalScore.textContent = score;
+
+            // Show modal with animation
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 100);
+        }
+
+        function hideModal() {
+            const modal = document.getElementById('gameEndModal');
+            modal.classList.remove('show');
+        }
+
+        // Add event listeners for modal
+        document.getElementById('restartButton').addEventListener('click', () => {
+            hideModal();
+            // startGame();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('gameEndModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('gameEndModal')) {
+                hideModal();
+            }
+        });
+
+        function homePage() {
+            document.location.href = './index.html';
+        }
+    </script>
+</body>
+
+</html>

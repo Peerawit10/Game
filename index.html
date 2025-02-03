@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTechQuest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f9f9f9;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background-items {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-item {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: floatAndSpin 15s linear infinite;
+        }
+
+        @keyframes floatAndSpin {
+            from {
+                transform: translateX(-100px) rotate(0deg);
+            }
+
+            to {
+                transform: translateX(calc(100vw + 100px)) rotate(720deg);
+            }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            z-index: 1;
+            background: rgba(249, 249, 249, 0.8);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .logo-container {
+            width: 150px;
+            height: 150px;
+            border-radius: 20px;
+            /* background-color: #e4e6eb; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #1c1e21;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .button-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .primary-button {
+            background: #1877f2;
+            color: white;
+        }
+
+        .primary-button:hover {
+            background: #166fe5;
+        }
+
+        .secondary-button {
+            background: #e4e6eb;
+            color: #050505;
+        }
+
+        .secondary-button:hover {
+            background: #d8dadf;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .logo-container {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-items"></div>
+
+    <div class="container">
+        <div class="logo-container">
+            <h1>EcoTechQuest</h1>
+        </div>
+
+        <div class="button-container">
+            <button class="primary-button" onclick="joinGame()">Join Game</button>
+            <button class="secondary-button" onclick="showHowTo()">How to ทิ้ง</button>
+        </div>
+    </div>
+
+    <script>
+        const items = [
+            '📱', '🎮', '🎧', '🔋', '💾', '⌚️', '📻', '🔦', '💡', '🖨️'
+        ];
+
+        function createFloatingItem() {
+            const item = document.createElement('div');
+            item.className = 'floating-item';
+            item.style.top = Math.random() * window.innerHeight + 'px';
+            item.style.fontSize = (30 + Math.random() * 20) + 'px';
+            item.textContent = items[Math.floor(Math.random() * items.length)];
+
+            const duration = 10 + Math.random() * 10;
+            item.style.animationDuration = duration + 's';
+
+            document.querySelector('.background-items').appendChild(item);
+
+            setTimeout(() => {
+                item.remove();
+            }, duration * 1000);
+        }
+
+        setInterval(createFloatingItem, 2000);
+
+        for (let i = 0; i < 5; i++) {
+            createFloatingItem();
+        }
+
+        function joinGame() {
+            document.location.href = './dragndrop.html';
+        }
+
+        function showHowTo() {
+            document.location.href = './howto.html';
+        }
+    </script>
+</body>
+
+</html>
